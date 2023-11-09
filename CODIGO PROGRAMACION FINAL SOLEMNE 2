@@ -1,0 +1,122 @@
+# Función para calcular el promedio de calificaciones
+def calcular_promedio(calificaciones, ponderaciones):
+    total_puntos = sum(calificaciones)
+    total_ponderacion = sum(ponderaciones) / 100  # Convertimos las ponderaciones a decimales
+    return (total_puntos / total_ponderacion) / len(calificaciones)
+
+# Función para determinar si un alumno aprueba o no
+def determinar_aprobacion(promedio, asistencia_requerida):
+    if asistencia_requerida == 60:
+        return promedio >= 3.0  # Se considera aprobado si el promedio es mayor o igual a 3 (equivalente a 60%)
+    elif asistencia_requerida == 80:
+        return promedio >= 4.0  # Se considera aprobado si el promedio es mayor o igual a 4 (equivalente a 80%)
+
+# Inicialización de variables
+curso = input("Nombre del curso: ")
+num_alumnos = int(input("Cantidad de alumnos inscritos: "))
+alumnos = {}  # Diccionario para almacenar información de los alumnos
+
+# Ingreso de nombres de alumnos
+for i in range(num_alumnos):
+    nombre_alumno = input(f"Nombre del alumno {i + 1}: ")
+    alumnos[nombre_alumno] = {
+        "calificaciones": [],
+        "asistencia": 0
+    }
+
+evaluaciones = int(input("Cantidad de evaluaciones: "))
+ponderaciones_evaluaciones = [float(input(f"Ponderación de la evaluación {i + 1} (en porcentaje): ")) for i in range(evaluaciones)]
+tiene_recuperativa = input("¿Tiene evaluación recuperativa? (Sí/No): ").strip().lower() == 'si'
+ponderacion_examen = 0
+
+if tiene_recuperativa:
+    ponderacion_examen = float(input("Ponderación de la evaluación recuperativa (en porcentaje): "))
+
+# Determinar si la asignatura es teórica o práctica
+tipo_asignatura = input("¿Es una asignatura teórica o práctica? (Teórica/Práctica): ").strip().lower()
+es_teoria = tipo_asignatura == 'teórica'
+
+# Ingreso de Evaluación
+def ingresar_evaluacion():
+    nombre_alumno = input("Nombre del alumno para ingresar la evaluación: ")
+    if nombre_alumno in alumnos:
+        calificaciones_alumno = alumnos[nombre_alumno]["calificaciones"]
+        if len(calificaciones_alumno) < evaluaciones:
+            for i in range(evaluaciones - len(calificaciones_alumno)):
+                while True:
+                    calificacion = float(input(f"Calificación de {nombre_alumno} en la evaluación {len(calificaciones_alumno) + 1}: "))
+                    if 0 <= calificacion <= 7:
+                        calificaciones_alumno.append(calificacion)
+                        break  # Sale del bucle si la calificación está en el rango
+                    else:
+                        print("Error: La calificación debe estar en el rango de 0 a 7.")
+            if tiene_recuperativa:
+                while True:
+                    calificacion_recuperativa = float(input(f"Calificación de {nombre_alumno} en la evaluación recuperativa: "))
+                    if 0 <= calificacion_recuperativa <= 7:
+                        calificaciones_alumno.append(calificacion_recuperativa)
+                        break  # Sale del bucle si la calificación de la evaluación recuperativa está en el rango
+                    else:
+                        print("Error: La calificación de la evaluación recuperativa debe estar en el rango de 0 a 7.")
+            print(f"Evaluaciones para {nombre_alumno} ingresadas con éxito.")
+        else:
+            print(f"{nombre_alumno} ya tiene todas las evaluaciones registradas.")
+    else:
+        print("Error: No se encontró al alumno. Asegúrate de ingresar el nombre correctamente.")
+
+# Ingreso de Asistencia
+def ingresar_asistencia():
+    nombre_alumno = input("Nombre del alumno para ingresar el porcentaje de asistencia: ")
+    if nombre_alumno in alumnos:
+        asistencia = float(input(f"Porcentaje de asistencia para {nombre_alumno}: "))
+        alumnos[nombre_alumno]["asistencia"] = asistencia
+        print(f"Asistencia para {nombre_alumno} ingresada con éxito.")
+    else:
+        print("Error: No se encontró al alumno. Asegúrate de ingresar el nombre correctamente.")
+
+# Condición Final del Alumno
+def condicion_final_alumno():
+    nombre_alumno = input("Nombre del alumno para consultar la condición final: ")
+    if nombre_alumno in alumnos:
+        calificaciones_alumno = alumnos[nombre_alumno]["calificaciones"]
+        asistencia = alumnos[nombre_alumno]["asistencia"]
+        promedio = calcular_promedio(calificaciones_alumno, ponderaciones_evaluaciones)
+        aprobado = determinar_aprobacion(promedio, 80 if es_teoria else 60)
+        estado = "APROBADO" if aprobado else "REPROBADO"
+        print(f"{nombre_alumno}: {estado}, Promedio: {promedio:.2f}, Asistencia: {asistencia:.2f}%")
+    else:
+        print("Error: No se encontró al alumno. Asegúrate de ingresar el nombre correctamente.")
+
+# Promedio General del Curso
+def promedio_general_curso():
+    if all("calificaciones" in alumnos[nombre] and "asistencia" in alumnos[nombre] for nombre in alumnos):
+        promedios = [calcular_promedio(alumnos[nombre]["calificaciones"], ponderaciones_evaluaciones) for nombre in alumnos]
+        promedio_general = sum(promedios) / num_alumnos
+        print(f"Promedio general del curso: {promedio_general:.2f}")
+    else:
+        print("Falta información. Debes ingresar todas las calificaciones y asistencias para todos los alumnos.")
+
+# Menú Permanente
+while True:
+    print("\nMenú Permanente:")
+    print("1. Ingreso de Evaluación")
+    print("2. Ingreso de Asistencia")
+    print("3. Condición Final Alumno")
+    print("4. Promedio General")
+    print("5. Salir")
+
+    opcion = input("Seleccione una opción (1/2/3/4/5): ")
+
+    if opcion == '1':
+        ingresar_evaluacion()
+    elif opcion == '2':
+        ingresar_asistencia()
+    elif opcion == '3':
+        condicion_final_alumno()
+    elif opcion == '4':
+        promedio_general_curso()
+    elif opcion == '5':
+        print("Gracias por ocupar nuestra aplicación")
+        break
+    else:
+        print("Opción no válida. Por favor, seleccione una opción válida (1/2/3/4/5).")
