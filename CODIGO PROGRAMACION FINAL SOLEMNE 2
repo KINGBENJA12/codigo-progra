@@ -11,7 +11,7 @@ def determinar_aprobacion(promedio, asistencia_requerida):
     elif asistencia_requerida == 80:
         return promedio >= 4.0  # Se considera aprobado si el promedio es mayor o igual a 4 (equivalente a 80%)
 
-# Inicialización de variables
+# Inicio de variables
 curso = input("Nombre del curso: ")
 num_alumnos = int(input("Cantidad de alumnos inscritos: "))
 alumnos = {}  # Diccionario para almacenar información de los alumnos
